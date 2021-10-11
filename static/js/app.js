@@ -35,24 +35,20 @@ form.on("submit",runEnter);
 
 // Create the function to run for both events
 function runEnter() {
-
-  // Prevent the page from refreshing
   d3.event.preventDefault();
-
-  // Select the input element and get the raw HTML node
   var inputElement = d3.select("#example-form-input");
-
-  // Get the value property of the input element
   var inputValue = inputElement.property("value");
-
-  // Print the value to the console
   console.log(inputValue);
 }
 
+//getPlayer(38852221)
 function getPlayer(name) {
     d3.json(`${baseURL}/search?q=${name}`).then(function(data){
         var playerID = data[0].account_id;
         var playerNavi = data[0].avatarfull;
+        console.log(playerNavi)
+        var naviBox = d3.select('svg')
+        var myimage = naviBox.append('image').attr('xlink:href', playerNavi)
         latestMatch(playerID)
     })
 }
@@ -62,8 +58,6 @@ d3.json(baseURL + "/players/" + playerID + "/recentMatches").then(function(data)
     var lastMatch = data[0]
     var pickedHero = lastMatch.hero_id
     var matchID = lastMatch.match_id
-    console.log(pickedHero)
-    console.log(matchID)
     gameAdvantage(matchID,playerID)
 })
 }
@@ -240,7 +234,7 @@ function gameAdvantageGraph(matchID) {
 
 
 
-gameAdvantageGraph(6214721378, myID)
+//gameAdvantageGraph(6214721378, myID)
 
 
 
