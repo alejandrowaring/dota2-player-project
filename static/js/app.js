@@ -39,6 +39,7 @@ function runEnter() {
   var inputElement = d3.select("#example-form-input");
   var inputValue = inputElement.property("value");
   console.log(inputValue);
+  getPlayer(inputValue)
 }
 
 //getPlayer(38852221)
@@ -46,7 +47,6 @@ function getPlayer(name) {
     d3.json(`${baseURL}/search?q=${name}`).then(function(data){
         var playerID = data[0].account_id;
         var playerNavi = data[0].avatarfull;
-        console.log(playerNavi)
         var naviBox = d3.select('svg')
         var myimage = naviBox.append('image').attr('xlink:href', playerNavi)
         latestMatch(playerID)
@@ -58,7 +58,7 @@ d3.json(baseURL + "/players/" + playerID + "/recentMatches").then(function(data)
     var lastMatch = data[0]
     var pickedHero = lastMatch.hero_id
     var matchID = lastMatch.match_id
-    gameAdvantage(matchID,playerID)
+    gameAdvantageGraph(matchID,playerID)
 })
 }
 
@@ -80,7 +80,6 @@ function getHero(heroID) {
     }); return heroLocalName;
 }
 
-
 function valueFlipper(value, playerTeam) {
     //If player is on Dire, you want the graph to be viewed upside-down
     if (playerTeam != true) {
@@ -88,9 +87,6 @@ function valueFlipper(value, playerTeam) {
     }
     return value
 }
-
-
-
 
 function gameAdvantageGraph(matchID) {
     matchURL = `${baseURL}/matches/${matchID}`
@@ -230,14 +226,4 @@ function gameAdvantageGraph(matchID) {
         console.log("Graph Drawn")
     })
 }
-
-
-
-
 //gameAdvantageGraph(6214721378, myID)
-
-
-
-//Search bar to allow for user search
-
-//Default on Last All pick match statistics, but give option turbo matches too.
