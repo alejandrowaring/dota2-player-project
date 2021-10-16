@@ -38,17 +38,19 @@ function runEnter() {
   d3.event.preventDefault();
   var inputElement = d3.select("#example-form-input");
   var inputValue = inputElement.property("value");
-  console.log(inputValue);
   getPlayer(inputValue)
 }
 
 //getPlayer(38852221)
 function getPlayer(name) {
     d3.json(`${baseURL}/search?q=${name}`).then(function(data){
+        //Generate some player info so something displays on the screen first while graph draws
         var playerID = data[0].account_id;
         var playerNavi = data[0].avatarfull;
         var naviBox = d3.select('svg')
+        //Draw image of the players navi
         var myimage = naviBox.append('image').attr('xlink:href', playerNavi)
+        //print the Player Name
         latestMatch(playerID)
     })
 }
@@ -67,16 +69,7 @@ function getHero(heroID) {
     var heroLocalName = ""
     d3.json(url).then(function(data) {
         var heroData = data.filter(d => d.id === heroID)[0]
-        // console.log(heroData)
-        // var ID = heroData.id
-        // var heroName = heroData.name
          heroLocalName = heroData.localized_name
-        // var heroObj = {
-        //     "id": ID,
-        //     "name": heroName,
-        //     "localizedName":heroLocalName
-        // }
-        
     }); return heroLocalName;
 }
 
@@ -88,12 +81,48 @@ function valueFlipper(value, playerTeam) {
     return value
 }
 
+function minuitize(seconds) {
+    return Math.floor(seconds / 60)
+}
+
 function gameAdvantageGraph(matchID) {
     matchURL = `${baseURL}/matches/${matchID}`
     console.log(matchURL)
 
     d3.json(matchURL).then(function(match){
         //get all the player's game data
+        var teamfight = match.teamfights
+
+
+        //Function to generate the output for the hoverInfo
+        function inMinute(minute) {
+            var outputString = "";
+            //get the teamfights
+            var teamfights = match.teamfights
+            //For each Teamfight that occurs
+            for (var i = 0;i < teamfights.length; i++) {
+                //Check if the teamfight is applicable to the current minute
+                if (minuitize(teamfights[i].start) === minute) {
+                    //Get each player in the teamfight, if they killed someone, get their hero
+                    for ( var j = 0 ; j < teamfights[i].players.length;j++) {
+                        //Here's my one usage of another library, Checks if obj is empty and returns a bool
+                        if ( ! jQuery.isEmptyObject(teamfights[i].players[j].killed)) {
+                            //Start Writing the teamfight HTML
+                            var currentHero = match.players[j].hero_id
+                            outputString = outputString + "<h3> Hero:" + currentHero + "</h3><br>"
+                            //For each of the hero kills, get the key and add it to the HTML output
+                            var heroKills = teamfights[i].players[j].killed;
+                            for (var [key,value] of Object.entries(heroKills)) {
+                                outputString = outputString + key
+                            }
+                        }
+                    };
+                break;    
+                };
+            } return outputString
+        }
+
+
         var playersData = match.players
         //Find the players team
         for (var i = 0 ; i < match.players.length ; i ++) {
@@ -122,28 +151,12 @@ function gameAdvantageGraph(matchID) {
         var maxDiff = 0
         for (var i = 0; i < allY.length ; i++){
             if (Math.abs(allY[i]) > maxDiff) {
-                maxDiff = Math.abs(allY[i])
+                //Get the absolute value + 10% so the graph doesn't sometimes draw poorly in very wild games
+                maxDiff = Math.abs(allY[i] * 1.1)
             }
         }
-        //Make the Teamfight Points
-        var teamfights = match.teamfights
-        var teamFightTimes = [];
-        var teamFightY = [];
-        var teamFightLabel = [];
-        for ( var i = 0; i < teamfights.length ; i++) {
-            //For each Teamfight, get all the fight times
-            teamFightTimes.push(Math.round(teamfights[i].start / 60))
-            teamFightY.push(0)
-            var teamFightPlayers = teamfights[i].players
-            var currentDeathStr = "Deaths";
-            for (var j = 0; j < teamFightPlayers.length;j++) {
-                //For Each player in the game, check if they died in each fight, if they did, add them to an array
-                if (teamFightPlayers[j].deaths > 0) {
-                    currentDeathStr = currentDeathStr + "<br>" + playersData[j].hero_id
-                    }
-            }
-        teamFightLabel.push(currentDeathStr)
-        }
+
+        
         //Make the Traces
         var trace1 = {
             x: xGold,
@@ -161,59 +174,11 @@ function gameAdvantageGraph(matchID) {
             line: {
                 color: xpColor
             }
-        }
-        var trace3 = {
-            x: teamFightTimes,
-            y: teamFightY,
-            mode: "markers",
-            type:'scatter',
-            name: "Team Fights",
-            visible: 'legendonly',
-            text: teamFightLabel,
-            marker: {
-                color: "#000000"
-            }
+        
 
         }
-
-        // if (isRadiant) {
-        //     var topText = radiantInfo.team.toUpperCase()
-        //     var bottomText = direInfo.team.toUpperCase()
-        //     var topColor = radiantInfo.color
-        //     var bottomColor = direInfo.color
-        // } else {
-        //     var topText = direInfo.team.toUpperCase()
-        //     var bottomText = radiantInfo.team.toUpperCase()
-        //     var topColor = direInfo.color
-        //     var bottomColor = radiantInfo.color
-        // }
-        // var trace3 = {
-        //     x: [0.3],
-        //     y: [0],
-        //     mode:"text",
-        //     text: [bottomText],
-        //     textposition:"bottom-right",
-        //     textfont: {
-        //         family: "sans-serif",
-        //         color: bottomColor,
-        //         size: 32
-        //     }
-        // }
-        // var trace4 = {
-        //     x: [0.3],
-        //     y: [0],
-        //     mode:"text",
-        //     text: [topText],
-        //     textposition:"top-right",
-        //     textfont: {
-        //         family: "sans-serif",
-        //         color: topColor,
-        //         size: 32
-        //     }
-
-        // }
         //Make the Graph
-        var data = [trace1, trace2,trace3]
+        var data = [trace1, trace2]
         var layout = {
             xaxis:{
                 title: "Minutes"
@@ -222,8 +187,22 @@ function gameAdvantageGraph(matchID) {
                 range:[maxDiff * -1 ,maxDiff]
             }
         }
+        var advPlot = document.getElementById("goldAdv"),
+        hoverInfo = document.getElementById("minute-stats")
         Plotly.newPlot('goldAdv', data,layout)
         console.log("Graph Drawn")
+        advPlot.on('plotly_hover', function(data){
+            var infotext = data.points.map(function(d) {
+                console.log(inMinute(d.x))
+                return inMinute(d.x)
+            })
+            
+        
+            hoverInfo.innerHTML = infotext
+        })
+         .on('plotly_unhover', function(data){
+            hoverInfo.innerHTML = '';
+        });
     })
 }
 //gameAdvantageGraph(6214721378, myID)
