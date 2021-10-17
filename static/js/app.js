@@ -64,15 +64,14 @@ d3.json(baseURL + "/players/" + playerID + "/recentMatches").then(function(data)
 })
 }
 
-function getHero(heroID) {
-    var url = "./data/heroes.json"//`${baseURL}/heroes`
-    var heroLocalName = ""
+function getHeroFromID(heroID) {
+    var url = "/api/heroes"
     d3.json(url).then(function(data) {
-        var heroData = data.filter(d => d.id === heroID)[0]
-         heroLocalName = heroData.localized_name
-    }); return heroLocalName;
+        var filteredHero = data.filter(hero => hero.id === heroID)
+        console.log(filteredHero[0].img)
+    })
 }
-
+getHeroFromID(1)
 function valueFlipper(value, playerTeam) {
     //If player is on Dire, you want the graph to be viewed upside-down
     if (playerTeam != true) {
@@ -88,7 +87,6 @@ function minuitize(seconds) {
 function gameAdvantageGraph(matchID) {
     matchURL = `${baseURL}/matches/${matchID}`
     console.log(matchURL)
-
     d3.json(matchURL).then(function(match){
         //get all the player's game data
         var teamfight = match.teamfights
@@ -121,8 +119,25 @@ function gameAdvantageGraph(matchID) {
                 };
             } return outputString
         }
-
-
+        function itemization(minute) {
+            //Give each player their own column
+            var outputStr = "<div class='col'>";
+            var players = match.players
+            //for each player
+            for (var i = 0; i < players.length; i++) {
+                var currentHero = players[i].hero_id
+                outputStr = outputStr + "<h3>" + currentHero + "</h3> <br><ul>"
+                var purchTime = players[i].purchase_time;
+                //for each of the items they bought this game
+                for(var [key,value] of Object.entries(purchTime)) {
+                    if (minuitize(value) === minute) {
+                        outputStr = outputStr + "<li>" + key + "</li>"
+                    }
+                }
+            } 
+            outputStr = "</ul>"+ outputStr + "</div>"
+            return outputStr
+        }
         var playersData = match.players
         //Find the players team
         for (var i = 0 ; i < match.players.length ; i ++) {
@@ -156,7 +171,6 @@ function gameAdvantageGraph(matchID) {
             }
         }
 
-        
         //Make the Traces
         var trace1 = {
             x: xGold,
@@ -188,20 +202,25 @@ function gameAdvantageGraph(matchID) {
             }
         }
         var advPlot = document.getElementById("goldAdv"),
-        hoverInfo = document.getElementById("minute-stats")
+        fightHoverInfo = document.getElementById("minute-stats")
+        var itemHoverInfo = document.getElementById("item-stats")
         Plotly.newPlot('goldAdv', data,layout)
         console.log("Graph Drawn")
         advPlot.on('plotly_hover', function(data){
-            var infotext = data.points.map(function(d) {
+            var fightInfoText = data.points.map(function(d) {
                 console.log(inMinute(d.x))
                 return inMinute(d.x)
             })
-            
-        
-            hoverInfo.innerHTML = infotext
+            fightHoverInfo.innerHTML = fightInfoText
+            var itemInfoText = data.points.map(function(d) {
+                
+                return itemization(d.x)
+            })
+            itemHoverInfo.innerHTML = itemInfoText
         })
          .on('plotly_unhover', function(data){
-            hoverInfo.innerHTML = '';
+            fightHoverInfo.innerHTML = '';
+            itemHoverInfo.innerHTML = '';
         });
     })
 }
