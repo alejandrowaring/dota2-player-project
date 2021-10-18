@@ -26,7 +26,7 @@ with open(hero_json_file) as json_file:
     data = json.load(json_file)
     for i in range(len(data)):
         currDict = data[i]
-        currDict["img"] = "./static/images/heroes/" + str(currDict["id"])
+        currDict["img"] = "./static/images/heroes/" + str(currDict["id"]) + ".png"
         db.heroes.insert_one(currDict)
 
 

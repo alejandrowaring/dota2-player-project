@@ -5,9 +5,7 @@ body {
     text-align: center;
     background-color:slategray;
 }
-.thisone{
-    background-color:white
-}
+
  /* The sidebar menu */
  .sidebar {
     height: 100%; /* 100% Full-height */
@@ -76,3 +74,58 @@ body {
     padding: 0 !important;
     margin: 0 !important;
  }
+
+img {
+  width: 100px;
+}
+
+.dire-col {
+  background-color: #d80700;
+}
+
+.radi-col {
+  background-color: #a6b719;
+}
+#teamfight-title {
+  text-align: center;
+}
+
+.player-card {
+  background-color: #1e3f66;
+  color:lightgray;
+}
+
+.hero-card {
+  background-color: #2e5984;
+  color:lightgray;
+}
+
+h4 {
+  font-size:23px;
+}
+
+.game-hero-card {
+  background-color: #3f7597;
+  color:lightgray;
+}
+
+.game-stat-card {
+  background-color: #588aac;
+  color:lightgray;
+}
+#player-name h1{
+  font-size:20px;
+}
+
+.col-md-2 {
+  text-align:center;
+}
+.col-md-2 h1 {
+  font-size:30px;
+  text-emphasis: underline;
+  color:white;
+}
+.min-stats {
+  background-color: #1E3F66;
+  color:white;
+}
