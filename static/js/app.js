@@ -4,15 +4,6 @@ var heroURL = "/api/heroes"
 var goldColor = "#e7c82d"
 var xpColor = "#9C167B"
 
-// var radiantInfo = {
-//     team:"radiant",
-//     color:"#a6b719"
-// }
-
-// var direInfo = {
-//     team:"dire",
-//     color: "#d83500"
-// }
 
 //Form and button
 var button = d3.select("#button");
@@ -54,19 +45,19 @@ function winloss(playerID) {
 function playerRole(roleID) {
     switch (roleID) {
         case 1:
-            var role = "Safelane Core (1)";
+            var role = "Safelane";
             break;
         case 2:
-            var role = "Midlane (2)"
+            var role = "Midlane"
             break;
         case 3:
-            var role = "Offlane Core (3)"
+            var role = "Offlane"
             break;
         case 4:
-            var role = "Offlane Support (4)";
+            var role = "Offlane";
             break;
         case 5:
-            var role = "Safelane Support (5)";
+            var role = "Safelane";
             break;
     }
     return role
