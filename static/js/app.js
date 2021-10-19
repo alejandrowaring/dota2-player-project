@@ -4,11 +4,6 @@ var heroURL = "/api/heroes"
 var goldColor = "#e7c82d"
 var xpColor = "#9C167B"
 
-// var graphLayoutDefaults = {
-//     paper_bgcolor:rgb(0,0,0,0),
-//     plot_bgpcolor:rgb(0,0,0,0)
-// }
-
 var radiantInfo = {
     team:"radiant",
     color:"#a6b719"
@@ -19,17 +14,11 @@ var direInfo = {
     color: "#d83500"
 }
 
-// Select the button
+//Form and button
 var button = d3.select("#button");
-
-// Select the form
 var form = d3.select("#form");
-
-// Create event handlers for clicking the button or pressing the enter key
 button.on("click", runEnter);
 form.on("submit",runEnter);
-
-// Create the function to run for both events
 function runEnter() {
   //d3.event.preventDefault();
   var inputElement = d3.select("#example-form-input");
@@ -37,7 +26,7 @@ function runEnter() {
   getPlayer(inputValue)
 }
 
-//getPlayer(38852221)
+//Function to get the players information, Draw it into appropriate location, and then look for the win loss rate and the latest match
 function getPlayer(name) {
     d3.json(`${baseURL}/search?q=${name}`).then(function(data){
         //Generate some player info so something displays on the screen first while graph draws
@@ -52,7 +41,7 @@ function getPlayer(name) {
         latestMatch(playerID)
     })
 }
-
+//Function to look at the players win loss rate, Percentages and game diff
 function winloss(playerID) {
     d3.json(`${baseURL}/players/${playerID}/wl`).then(function(data){
         document.getElementById('wins').innerHTML = `<h4> Wins: ${data.win} </h4>`
@@ -63,6 +52,7 @@ function winloss(playerID) {
     })
 }
 
+//Function to look at the players ID, and get their last match, then pass the matchID to the graph Drawing function
 function latestMatch(playerID) {
     d3.json(baseURL + "/players/" + playerID + "/recentMatches").then(function(data){
         var lastMatch = data[0]
@@ -72,7 +62,7 @@ function latestMatch(playerID) {
 })
 }
 
-
+//Function to make the player viewing the page be the top of the graph no matter the team they were on, otherwise it can be confusing if winning the game goes down
 function valueFlipper(value, playerTeam) {
     //If player is on Dire, you want the graph to be viewed upside-down
     if (playerTeam != true) {
@@ -81,9 +71,15 @@ function valueFlipper(value, playerTeam) {
     return value
 }
 
+//Function to convert seconds to minutes, rounded down
 function minuitize(seconds) {
     return Math.floor(seconds / 60)
 }
+
+//Function to read in the matchID, and playerID,
+//Draw the hero info and extra stats
+//Paint the plotly graph
+//Prepare the on_click statistics to display when the graph is clicked
 
 function gameAdvantageGraph(matchID,playerID) {
     matchURL = `${baseURL}/matches/${matchID}`
@@ -235,6 +231,7 @@ function gameAdvantageGraph(matchID,playerID) {
                                 heroImg = currHero.img;
                                 htmlOut = htmlOut + "<svg width='75' height='50'><image href='" + heroImg + "' width='75'></image> </svg></div>"
                                 //Check all the heros they killed, and make a new column with that info
+                                //I know the way this is displayed breaks if the hero got more than a rampage, but at that rate, good job you broke the drawing and your enemies
                                 var heroKills = currPlayer.killed;
                                 htmlOut = htmlOut + "<div class='col-xs-4'>"
                                 for (var [key,value] of Object.entries(heroKills)) {
