@@ -129,3 +129,18 @@ h4 {
   background-color: #1E3F66;
   color:white;
 }
+
+#team-radi {
+  background-color:#ABA943
+}
+
+#team-dire {
+  background-color:#ab3131
+}
+#team-radi p{
+  font-size: 10px;
+}
+
+#team-dire p{
+  font-size:10px
+}

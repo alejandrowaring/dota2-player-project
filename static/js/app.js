@@ -4,15 +4,15 @@ var heroURL = "/api/heroes"
 var goldColor = "#e7c82d"
 var xpColor = "#9C167B"
 
-var radiantInfo = {
-    team:"radiant",
-    color:"#a6b719"
-}
+// var radiantInfo = {
+//     team:"radiant",
+//     color:"#a6b719"
+// }
 
-var direInfo = {
-    team:"dire",
-    color: "#d83500"
-}
+// var direInfo = {
+//     team:"dire",
+//     color: "#d83500"
+// }
 
 //Form and button
 var button = d3.select("#button");
@@ -20,7 +20,7 @@ var form = d3.select("#form");
 button.on("click", runEnter);
 form.on("submit",runEnter);
 function runEnter() {
-  //d3.event.preventDefault();
+  d3.event.preventDefault();
   var inputElement = d3.select("#example-form-input");
   var inputValue = inputElement.property("value");
   getPlayer(inputValue)
@@ -51,7 +51,26 @@ function winloss(playerID) {
         document.getElementById('diff').innerHTML = `<h4> Game Diff: ${Math.abs(data.win - data.lose)} </h4>`
     })
 }
-
+function playerRole(roleID) {
+    switch (roleID) {
+        case 1:
+            var role = "Safelane Core (1)";
+            break;
+        case 2:
+            var role = "Midlane (2)"
+            break;
+        case 3:
+            var role = "Offlane Core (3)"
+            break;
+        case 4:
+            var role = "Offlane Support (4)";
+            break;
+        case 5:
+            var role = "Safelane Support (5)";
+            break;
+    }
+    return role
+}
 //Function to look at the players ID, and get their last match, then pass the matchID to the graph Drawing function
 function latestMatch(playerID) {
     d3.json(baseURL + "/players/" + playerID + "/recentMatches").then(function(data){
@@ -92,7 +111,6 @@ function gameAdvantageGraph(matchID,playerID) {
                 var playerIndex = i
             }
         } 
-        console.log(playerIndex)
         //Generate the game info on the top right and bottom panels
         d3.json(heroURL).then(function(heroData) {
             //Top Panel
@@ -111,29 +129,43 @@ function gameAdvantageGraph(matchID,playerID) {
             document.getElementById('hero-role').innerHTML = "<p>" + myHeroRole + "</p>"
             document.getElementById('hero-stat').innerHTML = "<p>" + myHero.primary_attr.toUpperCase() + "</p>"
             document.getElementById('hero-range').innerHTML = "<p>" + myHero.attack_type + "</p>"
+
+            //Bottom Panel
+            var allPlayers = match.players
+            for ( var i = 0 ; i < allPlayers.length;i++) {
+                //get the hero image and role
+                var currHero = heroData.filter(hero => hero.id ===allPlayers[i].hero_id)[0]
+                var heroImg = currHero.img
+                var heroText = currHero.localized_name + ": " + playerRole(allPlayers[i].lane_role)
+                console.log(heroImg)
+                console.log(heroText)
+                var imgClassID = `player-${i}-img`
+                var txtClassID = `player-${i}-role`
+                document.getElementById(imgClassID).innerHTML = "<img src='" + heroImg + "'>"
+                document.getElementById(txtClassID).innerHTML = "<p>" + heroText + "<p>"
+            }
         })
         //Hero game Info
         var playerData = match.players[playerIndex]
-        if(playerIndex >= 5) {var playerTeam = "Dire"} else {var playerTeam = "Radiant"}
-        var playerScore = `${playerData.kills}/${playerData.deaths}/${playerData.assists}`
-        switch (playerData.lane_role) {
-            case 1:
-                var laneRole = "Safelane Core (1)";
-                break;
-            case 2:
-                var laneRole = "Midlane (2)"
-                break;
-            case 3:
-                var laneRole = "Offlane Core (3)"
-                break;
-            case 4:
-                var laneRole = "Offlane Support (4)";
-                break;
-            case 5:
-                var laneRole = "Safelane Support (5)";
-                break;
+        if(playerIndex >= 5) {
+            var playerTeam = "Dire"
+            if (playerData.radiant_win) {
+                var playerVic = "Lost"
+            } else {
+                var playerVic = "Won"
+            }
+        } else {
+            var playerTeam = "Radiant"
+            if (playerData.radiant_win) {
+                var playerVic = "Won"
+            } else {
+                var playerVic = "Lost"
+            }
         }
-        document.getElementById('game-team').innerHTML = `<h2>${playerTeam}</h2>`
+        var playerScore = `${playerData.kills}/${playerData.deaths}/${playerData.assists}`
+        var laneRole = playerRole(playerData.lane_role)
+
+        document.getElementById('game-team').innerHTML = `<h2>${playerTeam} ${playerVic}</h2>`
         document.getElementById('game-role').innerHTML = `<p>${laneRole}</p>`
         document.getElementById('game-score').innerHTML = `<p>${playerScore}</p>`
         document.getElementById('game-obs').innerHTML = `<p>Observers Placed: ${playerData.obs_placed}</p>`
@@ -144,6 +176,11 @@ function gameAdvantageGraph(matchID,playerID) {
         document.getElementById('game-stun').innerHTML = `<p>Stun Time: ${Math.round(playerData.stuns)}</p>`
         document.getElementById('game-dmg').innerHTML = `<p>Damage Dealt: ${playerData.hero_damage}</p>`
         document.getElementById('game-heal').innerHTML = `<p>Healing: ${playerData.hero_healing}</p>`
+
+
+        //Bottom Panel
+
+
         //init the gold lists
         var xGold = [];
         var yGold = [];
