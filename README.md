@@ -2,12 +2,7 @@
 
 ## Project Proposal
 
-This project will allow an end user to enter their Steam ID and have the web page return statistics on their past 100 ranked matches (as a default), and analyize the game to find trends in their behaviour to provide insights on how the user can improve their game play. The following statistics will be returned to the user:
- - Overall Win/Loss Rate
- - Recent Win/Loss Rate
- - Most successful Heros
- - 
-
+This project will allow a user to input their Steam Name and return statistics and visualizations on the last game they played.
 
 ## API Called Data vs MongoDB Called Data
 
@@ -20,10 +15,17 @@ The Player/Match data is consantly changing as players play more games, while th
 
 ## Planned Visualizations/Data Sets
 
-Once the user inputs their user, the website will return statistics based on their choice of:
+Once the user inputs their user, the website will return the following statistics:
  - Last Match Performance
- - Last X Match Performance Aggregate (Defaulting at 50)
- - Comparisons vs players next rank level up.
+ - Player Statistics
+ - Hero Played Information
+ - Core Game information
+ - Extra Game information
+
+## Interactivability
+There will be 2 forms if interactivability
+ - Drilling down in the advantages graph to get insights on a minute by minute basis
+ - Ability to input any players name and return the information based on their last game.
 
 ## Data sets
 https://docs.opendota.com/
